@@ -25,13 +25,12 @@ if OBJECT_ID(N'dbo.Venicle', N'U') is not null
     drop table dbo.Venicle;
 go
 CREATE TABLE Venicle(
-    VenicleID INT,
+    VenicleID INT    PRIMARY KEY ,
     NumberPlate NVARCHAR(10) NOT NULL,
     Brand NVARCHAR(50),
     ManufactureYear INT NOT NULL,
     Capacity INT NOT NULL,
     MaximumSpeed INT,
-   PRIMARY KEY (VenicleID),
 	CONSTRAINT Check_id
                 CHECK (VenicleID <= 5)
 )
@@ -44,14 +43,12 @@ if OBJECT_ID(N'dbo.Venicle', N'U') is not null
     drop table dbo.Venicle;
 go
 CREATE TABLE Venicle(
-    VenicleID INT,
+    VenicleID INT    PRIMARY KEY ,
     NumberPlate NVARCHAR(10) NOT NULL,
     Brand NVARCHAR(50),
     ManufactureYear INT NOT NULL,
     Capacity INT NOT NULL,
     MaximumSpeed INT,
-    
-    PRIMARY KEY (VenicleID),
 	CONSTRAINT Check_id
                 CHECK (VenicleID > 5)
 )
