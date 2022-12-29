@@ -1,3 +1,43 @@
+--создать базу данных, спроектированную в рамках
+--лабораторной работы №4, используя изученные в
+--лабораторных работах 5-10 средства SQL Server 2012:
+--•поддержания создания и физической организации базы данных;
+--•различных категорий целостности;
+--•представления и индексы;
+--•хранимые процедуры, функции и триггеры;
+
+--создание объектов базы данных должно осуществляться
+--средствами DDL (CREATE/ALTER/DROP), в обязательном
+--порядке иллюстрирующих следующие аспекты:
+--•добавление и изменение полей;
+--•назначение типов данных;
+--•назначение ограничений целостности (PRIMARY KEY, NULL/NOT
+--NULL/UNIQUE, CHECK и т.п.);
+--•определение значений по умолчанию;
+
+--в рассматриваемой базе данных должны быть тем или иным образом (в
+--рамках объектов базы данных или дополнительно) созданы запросы DML
+--для:
+--•выборки записей (команда SELECT);
+--•добавления новых записей (команда INSERT), как с помощью непосредственного
+--указания значений, так и с помощью команды SELECT;
+--•модификации записей (команда UPDATE);
+--•удаления записей (команда DELETE);
+
+--запросы, созданные в рамках пп.2,3 должны иллюстрировать следующие
+--возможности языка:
+--–удаление повторяющихся записей (DISTINCT);
+--–выбор, упорядочивание и именование полей (создание псевдонимов для полей и
+--таблиц / представлений);
+--–соединение таблиц (INNER JOIN / LEFT JOIN / RIGHT JOIN / FULL OUTER JOIN);
+--–условия выбора записей (в том числе, условия / LIKE / BETWEEN / IN /
+--EXISTS);
+--–сортировка записей (ORDER BY - ASC, DESC);
+--–группировка записей (GROUP BY + HAVING, использование функций агрегирования
+--– COUNT / AVG / SUM / MIN / MAX);
+--–объединение результатов нескольких запросов (UNION / UNION ALL / EXCEPT /
+--INTERSECT);
+--–вложенные запросы.
 use master;
 go
 
@@ -108,24 +148,24 @@ INSERT INTO ControllersOffice (Schedule,Address, PhoneNumber,Mail,Fax) VALUES
 
 DECLARE @officeId INT
 SET @officeId=SCOPE_IDENTITY()
-INSERT INTO Controller (id,PassportData,PhoneNumber) VALUES
-((NEXT VALUE FOR UserID),'nodata','no'),
-((NEXT VALUE FOR UserID),'Saturday','da')
-INSERT INTO Driver (id,PassportData,PhoneNumber,DriverLicenseDate) VALUES
-((NEXT VALUE FOR UserID),'nodata','da',GETDATE()),
-((NEXT VALUE FOR UserID),'Saturday','no',GETDATE())
+INSERT INTO Controller (id,PassportData,PhoneNumber,FirstName,SecondName,MiddleName,Schedule) VALUES
+((NEXT VALUE FOR UserID),'PassportData15','89116620','Roman','Lomakin','Petrovich','Monday'),
+((NEXT VALUE FOR UserID),'PassportData33','891166205','Ilya','Ivanov','Olegovich','Saturday')
+INSERT INTO Driver (id,PassportData,PhoneNumber,DriverLicenseDate,FirstName,SecondName,MiddleName,Schedule) VALUES
+((NEXT VALUE FOR UserID),'PassportData99','89116620533',GETDATE(),'Roman','Lomakin','Viktorovich','Thueday'),
+((NEXT VALUE FOR UserID),'PassportData3','89116620590',GETDATE(),'Oleg','Lomakin','Petrovich','Saturday')
 
-INSERT INTO Venicle (NumberPlate,MaximumSpeed,Capacity) VALUES
-('abba',90,5),
-('dada',100,55)
+INSERT INTO Venicle (NumberPlate,MaximumSpeed,Capacity,Brand,ManufactureYear) VALUES
+('abba',90,5,'volvo',1990),
+('dada',100,55,'bmw',1999)
 INSERT INTO Route (ControllerId,OfficeID,RouteName,price) VALUES
 (1,@officeId,'airport',1),
 (2,@officeId,'kazanskaya',2)
 DECLARE @Routeid INT
 SET @Routeid =  SCOPE_IDENTITY()
-INSERT INTO WayBill (Routeid,DriverID,VenicleID) VALUES
-(@Routeid ,3,'abba'),
-(@Routeid ,4,'dada')
+INSERT INTO WayBill (Routeid,DriverID,VenicleID,DaysofWeek,DepartureTime) VALUES
+(@Routeid ,3,'abba','Saturday','8-00'),
+(@Routeid ,4,'dada','Thuesday','13-00')
 
 GO
 
@@ -199,10 +239,10 @@ BEGIN
   --  UPDATE Route SET RouteName=i.RouteName,Price=i.Price FROM Route b INNER JOIN inserted i ON i.RouteNumber=b.RouteNumber
 END
 GO
-INSERT INTO AllPeople (jobtitle,id,PassportData,PhoneNumber,DriverLicenseDate) VALUES
-('Controller',(NEXT VALUE FOR UserID),'PassportData1','+79004859942',NULL),
-('Controller',(NEXT VALUE FOR UserID),'PassportData2','+79004859941',NULL),
-('Driver',(NEXT VALUE FOR UserID),'PassportData3','+79004859977',GETDATE())
+INSERT INTO AllPeople (jobtitle,id,PassportData,PhoneNumber,DriverLicenseDate,FirstName,SecondName,MiddleName,Schedule,DateofBirth) VALUES
+('Controller',(NEXT VALUE FOR UserID),'PassportData1','+79004859942',NULL,'Oleg','olegovich','olegovich','Monday',GETDATE()),
+('Controller',(NEXT VALUE FOR UserID),'PassportData2','+79004859941',NULL,'Alexey','Ivanov','Axaxa','Monday',GETDATE()),
+('Driver',(NEXT VALUE FOR UserID),'PassportData4','+79004859977',GETDATE(),'Petya','Makarov','Petrovich','Monday',GETDATE())
 
 GO 
 DROP TRIGGER IF EXISTS DeletePeople
@@ -242,7 +282,7 @@ BEGIN
     --VALUES (@shopId,@productId,@price,@number)
 END
 GO
-EXECUTE addWaybill 1,'12-00','abba','PassportData3','test'
+EXECUTE addWaybill 1,'12-00','abba','PassportData3','Monday'
 GO
 --DISTINCT
 SELECT DISTINCT VenicleID 

@@ -71,8 +71,8 @@ CREATE TRIGGER OfficeInsert ON ControllersOffice
 INSTEAD OF INSERT
 AS
 BEGIN
-    IF (EXISTS (SELECT OfficeID from inserted WHERE OfficeID NOT IN (SELECT OfficeID FROM lab15a.dbo.ControllersOffice))) BEGIN
-        RAISERROR('Wrong FK',-1,11)
+    IF (EXISTS (SELECT OfficeID from inserted WHERE OfficeID IN (SELECT OfficeID FROM lab15a.dbo.ControllersOffice))) BEGIN
+        RAISERROR('Wrong Key',-1,11)
     END
     INSERT INTO ControllersOffice SELECT * FROM inserted
 END
@@ -99,9 +99,7 @@ INSTEAD OF UPDATE
 AS
 BEGIN
     IF (UPDATE(OfficeID))BEGIN
-         IF (EXISTS (SELECT OfficeID FROM inserted WHERE OfficeID NOT IN (SELECT OfficeID FROM lab15a.dbo.ControllersOffice)))BEGIN
             RAISERROR('Wrong Update',-1,11)
-            END
     END
     UPDATE ControllersOffice SET Address=i.Address,PhoneNumber=i.PhoneNumber,Mail=i.Mail,Fax=i.Fax,Schedule=i.Schedule FROM ControllersOffice b INNER JOIN inserted i ON i.OfficeID=b.OfficeID
 END
@@ -141,7 +139,6 @@ CREATE TRIGGER RouteDelete ON Route
 INSTEAD OF DELETE
 AS
 BEGIN
-    DELETE b FROM lab15b.dbo.Route AS b INNER JOIN deleted AS D ON d.OfficeID=b.OfficeID 
     DELETE b FROM lab15b.dbo.Route AS b INNER JOIN deleted AS D ON d.RouteNumber=b.RouteNumber 
 END
 GO
@@ -170,3 +167,4 @@ GO
 update Route
 	set RouteName = 'axaxa'
 	where RouteNumber = 2
+delete  from Route where RouteNumber = 4

@@ -73,7 +73,7 @@ go
 insert horizontal_dist_v values
 	(1,'VO879Y','VAZ',1999,40,15),
 	(3,'V1179Y','YAZ',1929,40,15),
-	(10,'VO879Y','UNKOWN',1999,40,15);
+	(20,'VO879Y','UNKOWN',1999,40,15);
 
 select * from horizontal_dist_v
 
@@ -83,6 +83,7 @@ update horizontal_dist_v
 
 delete horizontal_dist_v
 	where Brand = 'UNKOWN'
-
+go
 select * from lab13a.dbo.Venicle;
+go
 select * from lab13b.dbo.Venicle;

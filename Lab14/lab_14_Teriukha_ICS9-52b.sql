@@ -110,12 +110,13 @@ GO
 INSERT INTO verticalal_dist_v VALUES 
 	(1,'VO879Y','VAZ',1999,40,15),
 	(3,'V1179Y','YAZ',1929,40,15)
+go
 SELECT * FROM verticalal_dist_v
-
+go
 DELETE FROM verticalal_dist_v WHERE VenicleID=1
-
+go
 SELECT * FROM verticalal_dist_v
-
-UPDATE verticalal_dist_v SET ManufactureYear=0 WHERE Brand='V1179Y'
-
+go
+UPDATE verticalal_dist_v SET Brand='VAZ' WHERE VenicleID =3
+go
 SELECT * FROM verticalal_dist_v

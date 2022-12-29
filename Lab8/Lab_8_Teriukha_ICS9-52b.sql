@@ -4,6 +4,7 @@ GO
 --Создать хранимую процедуру, производящую выборку
 --из некоторой таблицы и возвращающую результат
 --выборки в виде курсора.
+DECLARE @temp_cursor CURSOR
 DROP PROCEDURE IF EXISTS selection1
 GO
 CREATE PROCEDURE dbo.selection1 @currently_cursor CURSOR VARYING OUTPUT AS
@@ -12,7 +13,6 @@ CREATE PROCEDURE dbo.selection1 @currently_cursor CURSOR VARYING OUTPUT AS
     SELECT MiddleName,PhoneNumber FROM Driver
     OPEN @currently_cursor
 GO
-DECLARE @temp_cursor CURSOR
 EXECUTE dbo.selection1 @currently_cursor = @temp_cursor OUTPUT
 FETCH NEXT FROM @temp_cursor
 WHILE (@@FETCH_STATUS = 0)

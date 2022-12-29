@@ -22,7 +22,8 @@ go
 create view office_and_route as
 	select 
 		office.Address as name, 
-		rout.RouteName as route
+		rout.RouteName as route,
+		rout.RouteNumber as num
 	from ControllersOffice office 
 	inner join Route rout
 		on office.RouteNumber = rout.RouteNumber;
