@@ -1,5 +1,4 @@
 using System;
-
 using System.Data.SqlClient;
 using System.Data;
 using System.Configuration;
@@ -11,6 +10,11 @@ namespace Lab12
         private static SqlConnection connection;
         private static DataSet dataset;
         private static SqlDataAdapter data_adapter;
+        private static string UpdateString = "UPDATE ControllersOffice SET PhoneNumber = @PhoneNumber WHERE Address = @address";
+        private static string InsertString =  "INSERT INTO ControllersOffice(Address,PhoneNumber,Mail,Fax,Schedule) VALUES (@address,@phone,@mail,@fax,@schedule)";
+        private static string DeleteString = "DELETE FROM ControllersOffice WHERE OfficeID = @OfficeID";
+        private static string CheckString = "SELECT Address FROM ControllersOffice WHERE Address = @address";
+        
         static public void connect()
         {
             connection = new SqlConnection(ConfigurationManager.AppSettings.Get("connectionString"));
@@ -40,7 +44,7 @@ namespace Lab12
                 try
                 {
                     connection.Close();
-                    Console.WriteLine("connection closed!");
+                    Console.WriteLine("disconnected!");
                 }
                 catch (Exception ex)
                 {
@@ -56,13 +60,16 @@ namespace Lab12
         }
         static public void ConfigDisconn()
         {
-            Console.WriteLine("config {0}");
+            connect();
+            Console.WriteLine("configurate");
             dataset = new DataSet();
             data_adapter = new SqlDataAdapter("SELECT * FROM ControllersOffice", connection);
             data_adapter.Fill(dataset, "ControllersOffice");
+            disconnect();
         }
         static public void ShowConnected(string table_name)
         {
+            connect();
             try
             {
                 Console.WriteLine("Showconnection(" + table_name + ")");
@@ -110,6 +117,7 @@ namespace Lab12
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+            disconnect();
         }
 
         static public void ShowDisconnected(string table_name)
@@ -142,15 +150,16 @@ namespace Lab12
         }
         static public void DeleteConnected(int i)
         {
+            connect();
             Console.WriteLine("delete connected {0}",i);
             try
             {
                 SqlCommand newComm = connection.CreateCommand();
                 newComm.Connection = connection;
-                newComm.CommandText = "DELETE FROM ControllersOffice WHERE OfficeID = @i";
+                newComm.CommandText = DeleteString;
 
                 SqlParameter param = new SqlParameter();
-                param.ParameterName = "@i";
+                param.ParameterName = "@OfficeID";
                 param.Value = i;
                 param.SqlDbType = SqlDbType.Int;
                 newComm.Parameters.Add(param);
@@ -163,13 +172,14 @@ namespace Lab12
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+            disconnect();
         }
         static public void DeleteDisconnected(int OfficeID)
         {
             Console.WriteLine("DeleteDisconnected {0}",OfficeID);
             SqlCommand newComm = new SqlCommand();
             newComm.Connection = connection;
-            newComm.CommandText = "DELETE FROM ControllersOffice WHERE OfficeID = @OfficeID";
+            newComm.CommandText = DeleteString;
             newComm.Parameters.Add("@OfficeID", SqlDbType.Int, 0, "OfficeID");
             data_adapter.DeleteCommand = newComm;
             for (int i = 0; i < dataset.Tables["ControllersOffice"].Rows.Count ; i++)
@@ -180,16 +190,16 @@ namespace Lab12
                     row.Delete();
                 }
             }
-            data_adapter.Update(dataset, "ControllersOffice");
         }
         static public void InsertConnected(string address, string phone, string mail,string fax,string schedule)
         {
+            connect();
             Console.WriteLine("delete connected {0}",address);
             try
             {
                 SqlCommand newCommcheckPatient = connection.CreateCommand();
                 newCommcheckPatient.Connection = connection;
-                newCommcheckPatient.CommandText = "SELECT Address FROM ControllersOffice WHERE Address = @address";
+                newCommcheckPatient.CommandText = CheckString;
 
                 SqlParameter param = new SqlParameter();
                 param.ParameterName = "@address";
@@ -208,7 +218,7 @@ namespace Lab12
 
                 SqlCommand newComm = connection.CreateCommand();
                 newComm.Connection = connection;
-                newComm.CommandText = "INSERT INTO ControllersOffice(Address,PhoneNumber,Mail,Fax,Schedule) VALUES (@address,@phone,@mail,@fax,@schedule)";
+                newComm.CommandText = InsertString;
 
                 SqlParameter[] parametes = new SqlParameter[5];
                 parametes[0] = new SqlParameter();
@@ -246,6 +256,7 @@ namespace Lab12
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+            disconnect();
         }
         static public void InsertDisconnected(string Address, string PhoneNumber, string Mail,string Fax,string Schedule)
         {
@@ -269,12 +280,13 @@ namespace Lab12
             tableReader.Close();
             SqlCommand newComm = connection.CreateCommand();
             newComm.Connection = connection;
-            newComm.CommandText = "INSERT INTO ControllersOffice(Address,PhoneNumber,Mail,Fax,Schedule) VALUES (@address,@phone,@mail,@fax,@schedule)";
+            newComm.CommandText = InsertString;
             newComm.Parameters.Add("@address", SqlDbType.VarChar, 0, "Address");
             newComm.Parameters.Add("@phone", SqlDbType.VarChar, 0, "PhoneNumber");
             newComm.Parameters.Add("@mail", SqlDbType.VarChar, 0, "Mail");
             newComm.Parameters.Add("@fax", SqlDbType.VarChar, 0, "Fax");
             newComm.Parameters.Add("@schedule", SqlDbType.VarChar, 0, "Schedule");
+            
             data_adapter.InsertCommand = newComm;
             DataRow dataRow = dataset.Tables["ControllersOffice"].NewRow();
             dataRow["Address"] = Address;
@@ -283,17 +295,17 @@ namespace Lab12
             dataRow["Fax"] = Fax;
             dataRow["Schedule"] = Schedule;
             dataset.Tables["ControllersOffice"].Rows.Add(dataRow);
-            data_adapter.Update(dataset, "ControllersOffice");
         }
 
         static public void UpdateConnected(string address, string phone)
         {
+            connect();
             Console.WriteLine("update connected {0}",address);
             try
             {
                 SqlCommand newCommcheckPatient = connection.CreateCommand();
                 newCommcheckPatient.Connection = connection;
-                newCommcheckPatient.CommandText = "SELECT Address FROM ControllersOffice WHERE Address = @address";
+                newCommcheckPatient.CommandText = CheckString;
 
                 SqlParameter param = new SqlParameter();
                 param.ParameterName = "@address";
@@ -302,8 +314,8 @@ namespace Lab12
 
                 newCommcheckPatient.Parameters.Add(param);
 
-                string Address = (string)newCommcheckPatient.ExecuteScalar();
-                if (Address == null)
+                int Address =(int)newCommcheckPatient.ExecuteScalar();
+                if (Address != 0)
                 {
                     Console.WriteLine("Не нашел такого");
                     return;
@@ -312,7 +324,7 @@ namespace Lab12
 
                 SqlCommand newComm = connection.CreateCommand();
                 newComm.Connection = connection;
-                newComm.CommandText = "UPDATE ControllersOffice SET PhoneNumber = @PhoneNumber WHERE Address = @address";
+                newComm.CommandText = UpdateString;
 
                 SqlParameter[] parametes = new SqlParameter[2];
                 parametes[0] = new SqlParameter();
@@ -335,13 +347,14 @@ namespace Lab12
                 Console.ReadKey();
                 Environment.Exit(-1);
             }
+            disconnect();
         }
         static public void UpdateDisconnected(string Address, string PhoneNumber)
         {
             Console.WriteLine("UpdateDisconnected {0}",Address);
             SqlCommand newComm = connection.CreateCommand();
             newComm.Connection = connection;
-            newComm.CommandText = "UPDATE ControllersOffice SET PhoneNumber = @PhoneNumber WHERE Address = @address";
+            newComm.CommandText = UpdateString;
 
             newComm.Parameters.Add("@Address", SqlDbType.VarChar, 0, "Address");
             newComm.Parameters.Add("@PhoneNumber", SqlDbType.VarChar, 0, "PhoneNumber");
@@ -356,10 +369,14 @@ namespace Lab12
                     row["PhoneNumber"] = PhoneNumber;
                 }
             }
-            data_adapter.Update(dataset, "ControllersOffice");
         }
-        static public void Test()
+        static public void DataExchange()
         {
+            connect();
+            Console.Write("DataExchahnge");
+            data_adapter.Update(dataset, "ControllersOffice");
+            data_adapter.Fill(dataset, "ControllersOffice");
+            disconnect();
         }
 
     }
@@ -367,27 +384,28 @@ namespace Lab12
     {   
         static public void consol()
         {
-            DB.connect();
-            Console.WriteLine(DB.isConnect());
+           
             // Связный уровень //
-            DB.ShowConnected("ControllersOffice");
+          /*  DB.ShowConnected("ControllersOffice");
             DB.DeleteConnected(2);
             DB.ShowConnected("ControllersOffice");
-            DB.InsertConnected("pyshkina 5", "+79056364162", "index@mail.ru", "sldk", "Monday");
+            DB.InsertConnected("pyshkina 5", "+79056364162", "index@mail.ru", "", "Monday");
             DB.ShowConnected("ControllersOffice");
-            DB.InsertConnected("pyshkina 5", "+79056364162", "index@mail.ru", "sldk", "Monday");
+            DB.InsertConnected("pyshkina 5", "+79056364162", "index@mail.ru", "", "Monday");
             DB.ShowConnected("ControllersOffice");
             DB.UpdateConnected("pyshkina 5","0");
             DB.ShowConnected("ControllersOffice");
+            */
             DB.ConfigDisconn();
             DB.ShowDisconnected("ControllersOffice");
-            DB.InsertDisconnected("pyshkina 15", "+79056364162", "index@mail.ru", "sldk", "Monday");
+            DB.InsertDisconnected("pyshkina 251113", "+710521631643162", "inde21113@mail.ru", "sl1d2311", "M112n1day");
+           // DB.ShowDisconnected("ControllersOffice");
+            //DB.UpdateDisconnected("pyshkina 135","135");
             DB.ShowDisconnected("ControllersOffice");
-            DB.UpdateDisconnected("pyshkina 15","15");
+           // DB.DeleteDisconnected(39);
+            //DB.ShowDisconnected("ControllersOffice");
+            DB.DataExchange();
             DB.ShowDisconnected("ControllersOffice");
-            DB.DeleteDisconnected(38);
-            DB.ShowDisconnected("ControllersOffice");
-            DB.disconnect();
         }
         static void Main(string[] args)
         {
